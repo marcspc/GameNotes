@@ -181,18 +181,39 @@ namespace GameNotes.UI
 
         private static string StripTags(string s) => System.Text.RegularExpressions.Regex.Replace(s, "<.*?>", "");
 
+        /// <summary>Paragraph has no constructor taking IEnumerable&lt;Inline&gt;, so build it manually.</summary>
+        private static Paragraph BuildParagraph(XElement el)
+        {
+            var paragraph = new Paragraph();
+            foreach (var inline in BuildInlines(el))
+            {
+                paragraph.Inlines.Add(inline);
+            }
+            return paragraph;
+        }
+
         private static Block XmlToBlock(XElement el, string gameDir)
         {
             switch (el.Name.LocalName)
             {
                 case "h1":
-                    return new Paragraph(BuildInlines(el)) { FontSize = 22, FontWeight = FontWeights.Bold };
+                {
+                    var p = BuildParagraph(el);
+                    p.FontSize = 22;
+                    p.FontWeight = FontWeights.Bold;
+                    return p;
+                }
 
                 case "h2":
-                    return new Paragraph(BuildInlines(el)) { FontSize = 17, FontWeight = FontWeights.Bold };
+                {
+                    var p = BuildParagraph(el);
+                    p.FontSize = 17;
+                    p.FontWeight = FontWeights.Bold;
+                    return p;
+                }
 
                 case "p":
-                    return new Paragraph(BuildInlines(el));
+                    return BuildParagraph(el);
 
                 case "ul":
                 case "ol":

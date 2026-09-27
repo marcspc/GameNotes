@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using GameNotes.Services;
@@ -70,9 +71,8 @@ namespace GameNotes
                 Type = SiderbarItemType.Button,
                 Activated = () =>
                 {
-                    var game = PlayniteApi.MainView.SelectedGames?.Count == 1
-                        ? PlayniteApi.MainView.SelectedGames[0]
-                        : null;
+                    var selected = PlayniteApi.MainView.SelectedGames?.ToList();
+                    var game = selected?.Count == 1 ? selected[0] : null;
 
                     if (game == null)
                     {
