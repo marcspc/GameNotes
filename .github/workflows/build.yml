@@ -1,0 +1,48 @@
+name: Build Game Notes .pext
+
+# Runs on every push to main, or manually from the "Actions" tab of your
+# repository ("Run workflow" button).
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    # Windows is required: a Playnite WPF plugin can only be built with
+    # Windows tooling.
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore NuGet packages (PlayniteSDK, Newtonsoft.Json...)
+        run: dotnet restore GameNotes.csproj
+
+      - name: Build in Release mode
+        run: dotnet build GameNotes.csproj -c Release --no-restore
+
+      - name: Package as .pext
+        shell: pwsh
+        run: |
+          $out = "dist"
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          Copy-Item "bin/Release/net462/GameNotes.dll" -Destination $out
+          Copy-Item "extension.yaml" -Destination $out
+          Get-ChildItem "bin/Release/net462" -Filter "*.dll" |
+            Where-Object { $_.Name -ne "GameNotes.dll" } |
+            ForEach-Object { Copy-Item $_.FullName -Destination $out }
+          Compress-Archive -Path "$out/*" -DestinationPath "GameNotes.pext.zip" -Force
+          Rename-Item "GameNotes.pext.zip" "GameNotes.pext"
+
+      - name: Publish the .pext as a downloadable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameNotes.pext
+          path: GameNotes.pext
