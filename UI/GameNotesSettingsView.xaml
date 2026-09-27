@@ -1,0 +1,25 @@
+<UserControl x:Class="GameNotes.UI.GameNotesSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignWidth="500">
+    <StackPanel Margin="20" MinWidth="450">
+        <TextBlock Text="Game Notes" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <CheckBox Content="Ask for confirmation before deleting a note"
+                   IsChecked="{Binding Settings.ConfirmBeforeDelete}" Margin="0,0,0,20"/>
+
+        <Separator Margin="0,0,0,10"/>
+        <TextBlock Text="GitHub sync (coming soon)" FontWeight="Bold" Margin="0,0,0,5"/>
+        <TextBlock TextWrapping="Wrap" Opacity="0.7" Margin="0,0,0,10"
+                   Text="This section is already planned in the design, but doesn't work yet in this version. Your notes always stay on your machine."/>
+
+        <CheckBox Content="Enable GitHub sync" IsEnabled="False"
+                  IsChecked="{Binding Settings.GitHubSyncEnabled}" Margin="0,0,0,10"/>
+        <TextBox Text="{Binding Settings.GitHubRepoUrl}" IsEnabled="False"
+                 Margin="0,0,0,10" ToolTip="Private repository URL (Phase 2)"/>
+        <CheckBox Content="Encrypt notes and images before uploading" IsEnabled="False"
+                  IsChecked="{Binding Settings.EncryptionEnabled}"/>
+    </StackPanel>
+</UserControl>
