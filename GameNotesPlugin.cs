@@ -27,6 +27,7 @@ namespace GameNotes
         public ISyncProvider Sync { get; private set; }
 
         private GameNotesSettingsViewModel _settingsViewModel;
+        private System.Windows.Controls.TextBlock _sidebarIcon;
 
         public GameNotesPlugin(IPlayniteAPI api) : base(api)
         {
@@ -64,10 +65,16 @@ namespace GameNotes
         // ---------- Sidebar quick access ----------
         public override IEnumerable<SidebarItem> GetSidebarItems()
         {
+            // Kept as a field so OnGameSelected can update it live: it's the
+            // same Control instance the sidebar is already displaying, so
+            // changing its Text updates the icon in place without needing
+            // to re-register the sidebar item.
+            _sidebarIcon = new System.Windows.Controls.TextBlock { Text = "📝", FontSize = 18 };
+
             yield return new SidebarItem
             {
                 Title = "Game Notes",
-                Icon = new System.Windows.Controls.TextBlock { Text = "📝", FontSize = 18 },
+                Icon = _sidebarIcon,
                 Type = SiderbarItemType.Button,
                 Activated = () =>
                 {
@@ -85,6 +92,37 @@ namespace GameNotes
                     OpenNotesWindow(game);
                 }
             };
+        }
+
+        /// <summary>
+        /// There's no reliable, theme-independent way to show a "has notes"
+        /// indicator inside the game details panel itself (GetGameViewControl
+        /// only renders on themes that explicitly declare a slot for it, and
+        /// the stock Playnite themes don't). This is the closest
+        /// theme-independent equivalent: the sidebar icon itself reflects
+        /// whether the currently selected game already has notes, updating
+        /// every time the selection changes.
+        /// </summary>
+        public override void OnGameSelected(OnGameSelectedEventArgs args)
+        {
+            if (_sidebarIcon == null) return;
+
+            var selected = args.NewValue;
+            var hasSingleGame = selected != null && selected.Count == 1;
+
+            if (!hasSingleGame)
+            {
+                _sidebarIcon.Text = "📝";
+                _sidebarIcon.ToolTip = "Game Notes";
+                return;
+            }
+
+            var game = selected[0];
+            var hasNotes = Storage.LoadIndex(game.Id).Notes.Count > 0;
+            _sidebarIcon.Text = hasNotes ? "📒" : "📝";
+            _sidebarIcon.ToolTip = hasNotes
+                ? $"{game.Name} already has notes — click to open"
+                : $"No notes yet for {game.Name} — click to create one";
         }
 
         private void OpenNotesWindow(Game game)

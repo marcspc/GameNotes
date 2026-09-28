@@ -1,0 +1,44 @@
+<UserControl x:Class="GameNotes.UI.NotesWindowControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:GameNotes.UI">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left column: list of notes for the current game -->
+        <DockPanel Grid.Column="0" Margin="8">
+            <TextBlock Text="{Binding GameTitle}" FontWeight="Bold" FontSize="14"
+                       DockPanel.Dock="Top" Margin="4,0,4,8" TextTrimming="CharacterEllipsis"/>
+
+            <Button DockPanel.Dock="Top" Content="+ New note" Margin="4,0,4,8"
+                    Click="OnCreateNoteClick"/>
+
+            <ListBox x:Name="NotesListBox" DockPanel.Dock="Top"
+                     ItemsSource="{Binding Notes}"
+                     SelectedItem="{Binding SelectedNote, Mode=TwoWay}"
+                     SelectionChanged="OnNoteSelected">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{Binding DisplayName}"
+                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="🗑" Width="24" Height="24"
+                                    ToolTip="Delete note" Tag="{Binding}" Click="OnDeleteNoteClick"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <!-- Right column: editor for the selected note -->
+        <local:NoteEditorControl x:Name="Editor" Grid.Column="1"/>
+    </Grid>
+</UserControl>

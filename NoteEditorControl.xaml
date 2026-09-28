@@ -1,0 +1,43 @@
+<UserControl x:Class="GameNotes.UI.NoteEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+    <DockPanel Margin="8">
+
+        <!-- Note title + save indicator -->
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+            <TextBlock x:Name="SaveIndicator" DockPanel.Dock="Right" VerticalAlignment="Center"
+                       Margin="8,0,0,0" Opacity="0.7"/>
+            <TextBox x:Name="TitleBox" FontSize="16" FontWeight="Bold"
+                     BorderThickness="0" Background="Transparent"
+                     LostFocus="OnTitleLostFocus"/>
+        </DockPanel>
+
+        <!-- Formatting toolbar -->
+        <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True">
+            <Button Content="B" FontWeight="Bold" ToolTip="Bold (Ctrl+B)" Click="OnBoldClick"/>
+            <Button Content="I" FontStyle="Italic" ToolTip="Italic (Ctrl+I)" Click="OnItalicClick"/>
+            <Button ToolTip="Strikethrough" Click="OnStrikeClick">
+                <Button.Content>
+                    <TextBlock Text="S" TextDecorations="Strikethrough"/>
+                </Button.Content>
+            </Button>
+            <Separator/>
+            <Button Content="H1" ToolTip="Heading" Click="OnH1Click"/>
+            <Button Content="H2" ToolTip="Subheading" Click="OnH2Click"/>
+            <Button Content="¶" ToolTip="Normal text" Click="OnParagraphClick"/>
+            <Separator/>
+            <Button Content="• List" ToolTip="Bulleted list" Click="OnBulletListClick"/>
+            <Button Content="1. List" ToolTip="Numbered list" Click="OnNumberedListClick"/>
+            <Separator/>
+            <Button Content="🔗 Link" ToolTip="Insert link" Click="OnInsertLinkClick"/>
+            <Button Content="🖼 Image" ToolTip="Insert image (or paste with Ctrl+V)" Click="OnInsertImageClick"/>
+            <Button Content="⊞ Table" ToolTip="Insert table" Click="OnInsertTableClick"/>
+        </ToolBar>
+
+        <RichTextBox x:Name="Editor" AcceptsTab="True" VerticalScrollBarVisibility="Auto"
+                     IsDocumentEnabled="True"
+                     PreviewKeyDown="OnEditorPreviewKeyDown"
+                     TextChanged="OnEditorTextChanged"/>
+    </DockPanel>
+</UserControl>

@@ -1,0 +1,47 @@
+name: Build Game Notes
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore NuGet packages
+        run: dotnet restore GameNotes.csproj
+
+      - name: Build in Release mode
+        run: dotnet build GameNotes.csproj -c Release --no-restore
+
+      - name: Assemble ready-to-install folder
+        shell: pwsh
+        run: |
+          $root = "installer"
+          $ext = "$root/GameNotes"
+          New-Item -ItemType Directory -Force -Path $ext | Out-Null
+          Copy-Item "extension.yaml" -Destination $ext
+          Copy-Item "bin/Release/net462/GameNotes.dll" -Destination $ext
+          Get-ChildItem "bin/Release/net462" -Filter "*.dll" |
+            Where-Object { $_.Name -ne "GameNotes.dll" -and $_.Name -notlike "Playnite.SDK*" } |
+            ForEach-Object { Copy-Item $_.FullName -Destination $ext }
+          Copy-Item "installer-files/install.bat" -Destination $root
+          Copy-Item "installer-files/README.txt" -Destination $root
+
+      # Uploading the folder (not a zip) means the file you download from
+      # GitHub IS the installer zip: unzip it and run install.bat.
+      - name: Publish installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameNotes-installer
+          path: installer
